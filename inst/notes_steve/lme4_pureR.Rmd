@@ -26,11 +26,11 @@ I think that all I assume is an understanding of three ideas:
 Basic numerical problem
 -----------------------
 
-One of the coolest things about linear mixed effects models as fitted by the `lmer` function, is that the fitting proceedure consists of iteratively solving a series of linear matrix equations.  A general such linear matrix equation posses the problem of finding a matrix $latex \mathbf W$, given,
+One of the coolest things about linear mixed effects models as fitted by the `lmer` function, is that the fitting proceedure consists of iteratively solving a series of linear matrix equations.  A general such linear matrix equation posses the problem of finding a matrix $\mathbf W$, given,
 
-$$latex \mathbf A \mathbf W = \mathbf C $$
+$$\mathbf A \mathbf W = \mathbf C$$
 
-where $latex \mathbf A $ is square and symmetric.  This can be done directly on a computer.  For example, in `R` we would use the `solve` command,
+where $\mathbf A $ is square and symmetric.  This can be done directly on a computer.  For example, in `R` we would use the `solve` command,
 
 ```{r}
 set.seed(1)
@@ -44,11 +44,11 @@ This is fine if we only want to solve a few of these very small problems.  Howev
 Cholesky decomposition
 ----------------------
 
-Think of this decomposition as the analogue of square root for matrices.  Using this decomposition, we can solve $latex \mathbf A \mathbf W = \mathbf C $ in three steps (rather than the single step above).  This sounds worse at first:  three steps instead of a single step.  But it turns out that solving the following three problems is faster than the single problem above,
+Think of this decomposition as the analogue of square root for matrices.  Using this decomposition, we can solve $\mathbf A \mathbf W = \mathbf C $ in three steps (rather than the single step above).  This sounds worse at first:  three steps instead of a single step.  But it turns out that solving the following three problems is faster than the single problem above,
 
-1. Find the Cholesky factor, $latex \mathbf L$ (i.e. matrix square root), of $latex \mathbf A$, $$latex \mathbf A = \mathbf L \mathbf L^\top$$
-2. Solve the following equation for a matrix called $latex \mathbf T$, $$latex \mathbf L \mathbf T = \mathbf C $$
-3. We can then solve for what we really want, $latex \mathbf W$, as, $$latex \mathbf W = \mathbf L^\top \mathbf W = \mathbf C $$
+1. Find the Cholesky factor, $\mathbf L$ (i.e. matrix square root), of $\mathbf A$, $$\mathbf A = \mathbf L \mathbf L^\top$$
+2. Solve the following equation for a matrix called $\mathbf T$, $$\mathbf L \mathbf T = \mathbf C$$
+3. We can then solve for what we really want, $\mathbf W$, as, $$\mathbf W = \mathbf L^\top \mathbf W = \mathbf C$$
 
 To understand the speed, consider this example,
 ```{r}
@@ -87,25 +87,24 @@ But what do these matrices mean?
 
 The trick is that each of these matrics have a complex structure underlying them.  Why do we need to worry about this structure?  Well, it is this structure that allows us to relate this simple matrtix equation to our statistical interpretation of it as a linear mixed model.
 
-$$latex  \mathbf A = \begin{bmatrix}
+$$\mathbf A = \begin{bmatrix}
 \mathbf P\left(\Lambda_\theta^\top\mathbf Z^\top\mathbf
       Z\Lambda_\theta+\mathbf I_q\right)\mathbf P^\top &
     \mathbf P\Lambda_\theta^\top\mathbf Z^\top\mathbf X\\
     \mathbf X^\top\mathbf Z\Lambda_\theta\mathbf P^\top & \mathbf X^\top\mathbf X
-  \end{bmatrix}
-$$
+  \end{bmatrix}$$
 
-$$latex  \mathbf w = 
+$$\mathbf w = 
   \begin{bmatrix}
     \mathbf P\tilde{\mathbf u}\\
     \widehat{\mathbf\beta}_\theta
-  \end{bmatrix} $$
+  \end{bmatrix}$$
   
-  $$latex  \mathbf c = 
+  $$\mathbf c = 
   \begin{bmatrix}
     \mathbf P\Lambda_\theta^\top\mathbf Z^\top\mathbf y_{\text{obs}}\\
     \mathbf X^\top\mathbf y_{\text{obs}}
-  \end{bmatrix} $$
+  \end{bmatrix}$$
 
 To understand what these terms are I consider an example.  Although this example is meant to be as simple as possible, it is fairly lengthy and so a summary of the correspondence between the math symbols and the computational symbols follows.  I'm still going to use the formula parsing tools from `lme4` and I set the random number seed for replicability of the simulations below:
 
@@ -136,11 +135,11 @@ fm <- y ~ V1 + V2 + (V1 + V2 | f)
 fm_df_glmer <- lme4:::glmer_form_parse(fm, df)
 ```
 
-This `fm_df_glmer` object contains many objects required to fit the model to the data.  The first things are the design matrices---the transpose of the random effects design matrix, $latex \mathbf Z^\top$,
+This `fm_df_glmer` object contains many objects required to fit the model to the data.  The first things are the design matrices---the transpose of the random effects design matrix, $\mathbf Z^\top$,
 ```{r}
 (Zt <- fm_df_glmer$reTrms$Zt)
 ```
-and the fixed effects design matrix, $latex \mathbf X$,
+and the fixed effects design matrix, $\mathbf X$,
 ```{r}
 (X <- fm_df_glmer$X)
 ```
@@ -153,11 +152,11 @@ ZtX <- Zt %*% X
 Zty <- Zt %*% y
 ```
 
-Another object in `gm_df_glmer` is `theta`, corresponding to $latex \theta$, which contains the initial values for the variance component parameters,
+Another object in `gm_df_glmer` is `theta`, corresponding to $\theta$, which contains the initial values for the variance component parameters,
 ```{r}
 (theta <- fm_df_glmer$reTrms$theta)
 ```
-The meaning of these variance component parameter is somewhat difficult to understand.  Essentially, they fill in certain elements of the $latex \Lambda_\theta^\top$ matrix,
+The meaning of these variance component parameter is somewhat difficult to understand.  Essentially, they fill in certain elements of the $\Lambda_\theta^\top$ matrix,
 ```{r}
 (Lambdat <- fm_df_glmer$reTrms$Lambdat)
 ```
@@ -183,15 +182,15 @@ I'll save the remaining objects in `fm_df_glmer$reTrms` but put off describing t
 (f <- fm_df_glmer$reTrms$cnms$f)
 ```
 
-OK so that takes care of $latex \mathbf Z, \mathbf X$, and $latex \Lambda_\theta$.  Another simple one is $latex y_\mathrm{obs}$, which are the response data,
+OK so that takes care of $\mathbf Z, \mathbf X$, and $\Lambda_\theta$.  Another simple one is $y_\mathrm{obs}$, which are the response data,
 
 ```{r}
 y
 ```
 
-The $latex \mathbf w $ vector contains the estimate (or value at the current iterate) of the random, $latex \tilde{\mathbf u}$, and fixed, $latex \widehat{\beta}_\theta$, effect coefficients.
+The $\mathbf w $ vector contains the estimate (or value at the current iterate) of the random, $\tilde{\mathbf u}$, and fixed, $\widehat{\beta}_\theta$, effect coefficients.
 
-I've left The strangest and most obscure aspect of the problem for last.  The matrix $latex \mathbf P$ is a permutation matrix that doesn't change the statistical interpretation of the estimates but does improve the computational speed of the fitting proceedure.  One of the more difficult aspects of this matrix for me is the fact that it is apparently never actually computed.  Instead, $latex \mathbf P$ is better thought of as a shorthand notation for using a particularly efficient method for solving a system of equations.
+I've left The strangest and most obscure aspect of the problem for last.  The matrix $\mathbf P$ is a permutation matrix that doesn't change the statistical interpretation of the estimates but does improve the computational speed of the fitting proceedure.  One of the more difficult aspects of this matrix for me is the fact that it is apparently never actually computed.  Instead, $\mathbf P$ is better thought of as a shorthand notation for using a particularly efficient method for solving a system of equations.
 
 Later...
 --------
@@ -216,18 +215,3 @@ Here's something I don't get yet...updating.  Doug Bates uses lines like this,
 (L <- update(L, Ut, mult = 1))
 ```
 In other words the `L` matrix is *updated*, but I'm perplexed because its no different than the original `L` in this case at least.  Maybe it'll make more sense later.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -212,9 +212,9 @@ hljs.initHighlightingOnLoad();
 
 <p>One of the coolest things about linear mixed effects models as fitted by the <code>lmer</code> function, is that the fitting proceedure consists of iteratively solving a series of linear matrix equations.  A general such linear matrix equation posses the problem of finding a matrix \( \mathbf W \), given,</p>
 
-<p>\[ \mathbf A \mathbf W = \mathbf C  \]</p>
+<p>\[ \mathbf A \mathbf W = \mathbf C \]</p>
 
-<p>where \( \mathbf A  \) is square and symmetric.  This can be done directly on a computer.  For example, in <code>R</code> we would use the <code>solve</code> command,</p>
+<p>where $\mathbf A $ is square and symmetric.  This can be done directly on a computer.  For example, in <code>R</code> we would use the <code>solve</code> command,</p>
 
 <pre><code class="r">set.seed(1)
 (A &lt;- matrix(rnorm(4), 2, 2))
@@ -245,12 +245,12 @@ hljs.initHighlightingOnLoad();
 
 <h2>Cholesky decomposition</h2>
 
-<p>Think of this decomposition as the analogue of square root for matrices.  Using this decomposition, we can solve \( \mathbf A \mathbf W = \mathbf C  \) in three steps (rather than the single step above).  This sounds worse at first:  three steps instead of a single step.  But it turns out that solving the following three problems is faster than the single problem above,</p>
+<p>Think of this decomposition as the analogue of square root for matrices.  Using this decomposition, we can solve $\mathbf A \mathbf W = \mathbf C $ in three steps (rather than the single step above).  This sounds worse at first:  three steps instead of a single step.  But it turns out that solving the following three problems is faster than the single problem above,</p>
 
 <ol>
 <li>Find the Cholesky factor, \( \mathbf L \) (i.e. matrix square root), of \( \mathbf A \), \[ \mathbf A = \mathbf L \mathbf L^\top \]</li>
-<li>Solve the following equation for a matrix called \( \mathbf T \), \[ \mathbf L \mathbf T = \mathbf C  \]</li>
-<li>We can then solve for what we really want, \( \mathbf W \), as, \[ \mathbf W = \mathbf L^\top \mathbf W = \mathbf C  \]</li>
+<li>Solve the following equation for a matrix called \( \mathbf T \), \[ \mathbf L \mathbf T = \mathbf C \]</li>
+<li>We can then solve for what we really want, \( \mathbf W \), as, \[ \mathbf W = \mathbf L^\top \mathbf W = \mathbf C \]</li>
 </ol>
 
 <p>To understand the speed, consider this example,</p>
@@ -299,37 +299,36 @@ benchmark(explicit.chol = {
 
 <pre><code>##                  test relative
 ## 1       explicit.chol    1.000
-## 2               solve    1.111
-## 5            qr.solve    2.044
-## 6 naive.explicit.chol    2.333
-## 3           solve.inv    2.889
-## 4   solve.with.Matrix    7.356
-## 7      solve.with.svd   20.111
+## 2               solve    1.136
+## 5            qr.solve    2.068
+## 6 naive.explicit.chol    2.409
+## 3           solve.inv    2.932
+## 4   solve.with.Matrix    7.568
+## 7      solve.with.svd   20.545
 </code></pre>
 
 <h2>But what do these matrices mean?</h2>
 
 <p>The trick is that each of these matrics have a complex structure underlying them.  Why do we need to worry about this structure?  Well, it is this structure that allows us to relate this simple matrtix equation to our statistical interpretation of it as a linear mixed model.</p>
 
-<p>\[  \mathbf A = \begin{bmatrix}
+<p>\[ \mathbf A = \begin{bmatrix}
 \mathbf P\left(\Lambda_\theta^\top\mathbf Z^\top\mathbf
       Z\Lambda_\theta+\mathbf I_q\right)\mathbf P^\top &
     \mathbf P\Lambda_\theta^\top\mathbf Z^\top\mathbf X\\
     \mathbf X^\top\mathbf Z\Lambda_\theta\mathbf P^\top & \mathbf X^\top\mathbf X
-  \end{bmatrix}
- \]</p>
+  \end{bmatrix} \]</p>
 
-<p>\[  \mathbf w = 
+<p>\[ \mathbf w = 
   \begin{bmatrix}
     \mathbf P\tilde{\mathbf u}\\
     \widehat{\mathbf\beta}_\theta
-  \end{bmatrix}  \]</p>
+  \end{bmatrix} \]</p>
 
-<p>\[  \mathbf c = 
+<p>\[ \mathbf c = 
   \begin{bmatrix}
     \mathbf P\Lambda_\theta^\top\mathbf Z^\top\mathbf y_{\text{obs}}\\
     \mathbf X^\top\mathbf y_{\text{obs}}
-  \end{bmatrix}  \]</p>
+  \end{bmatrix} \]</p>
 
 <p>To understand what these terms are I consider an example.  Although this example is meant to be as simple as possible, it is fairly lengthy and so a summary of the correspondence between the math symbols and the computational symbols follows.  I&#39;m still going to use the formula parsing tools from <code>lme4</code> and I set the random number seed for replicability of the simulations below:</p>
 
@@ -507,7 +506,7 @@ Zty &lt;- Zt %*% y
 <pre><code>##  [1] -0.6265  0.1836 -0.8356  1.5953  0.3295 -0.8205  0.4874  0.7383  0.5758 -0.3054
 </code></pre>
 
-<p>The \( \mathbf w  \) vector contains the estimate (or value at the current iterate) of the random, \( \tilde{\mathbf u} \), and fixed, \( \widehat{\beta}_\theta \), effect coefficients.</p>
+<p>The $\mathbf w $ vector contains the estimate (or value at the current iterate) of the random, \( \tilde{\mathbf u} \), and fixed, \( \widehat{\beta}_\theta \), effect coefficients.</p>
 
 <p>I&#39;ve left The strangest and most obscure aspect of the problem for last.  The matrix \( \mathbf P \) is a permutation matrix that doesn&#39;t change the statistical interpretation of the estimates but does improve the computational speed of the fitting proceedure.  One of the more difficult aspects of this matrix for me is the fact that it is apparently never actually computed.  Instead, \( \mathbf P \) is better thought of as a shorthand notation for using a particularly efficient method for solving a system of equations.</p>
 
