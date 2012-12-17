@@ -14,8 +14,8 @@
 \alias{nlmerMod-class}
 \alias{print.merMod}
 \alias{print.summary.mer}
-\alias{show.merMod}
 \alias{show,merMod-method}
+\alias{show.merMod}
 \alias{show.summary.mer}
 \alias{summary.merMod}
 \alias{summary.summary.mer}

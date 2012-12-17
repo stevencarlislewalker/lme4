@@ -228,8 +228,11 @@ namespace lme4 {
     }
 
     void merPredD::updateDecomp() { // update L, RZX and RX
+  // Rcpp::Rcout << "first thing in updateDecomp:\n" << d_LamtUt << std::endl;
+  // Rcpp::Rcout << "second thing in updateDecomp:\n" << d_V << std::endl;
 	updateL();
 	d_RZX         = d_LamtUt * d_V;
+  // Rcpp::Rcout << "third thing in updateDecomp:\n" << d_RZX << std::endl;
 	if (d_p > 0) {
 	    d_L.solveInPlace(d_RZX, CHOLMOD_P);
 	    d_L.solveInPlace(d_RZX, CHOLMOD_L);

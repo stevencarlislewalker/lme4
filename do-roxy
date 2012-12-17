@@ -6,7 +6,7 @@ pDIR <- switch((U <- Sys.getenv("USER")),
                "bates"    = "~/gitR",
                "bolker"   = "~/R/pkgs/lme4git",
                ## default:
-           {  p <- "/tmp"
+           {  p <- getwd()
               warning("unknown USER ", U,". -- using pDIR=",p,
                       "\n but probably need to add yourself to 'do-roxy' script")
               p

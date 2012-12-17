@@ -8,17 +8,6 @@ glmer_form_parse <- function(formula, data=NULL, family = gaussian, sparseX = FA
   ## FIXME: does start= do anything? test & fix
   verbose <- as.integer(verbose)
   mf <- mc <- match.call()
-  # extract family, call lmer for gaussian
-  if (is.character(family))
-    family <- get(family, mode = "function", envir = parent.frame(2))
-  if( is.function(family)) family <- family()
-  if (isTRUE(all.equal(family, gaussian()))) {
-    mc[[1]] <- as.name("lmer")
-    mc["family"] <- NULL            # to avoid an infinite loop
-    return(eval(mc, parent.frame()))
-  }
-  if (family$family %in% c("quasibinomial", "quasipoisson", "quasi"))
-    stop('"quasi" families cannot be used in glmer')
   
   checkArgs("glmer",sparseX,...)
   
