@@ -5,8 +5,9 @@ pDIR <- switch((U <- Sys.getenv("USER")),
                "maechler" = "~/R/Pkgs",
                "bates"    = "~/gitR",
                "bolker"   = "~/R/pkgs/lme4git",
+               "stevenwalker" = "~/Development/",
                ## default:
-           {  p <- getwd()
+           {  p <- paste(getwd(), '/..', sep = '')
               warning("unknown USER ", U,". -- using pDIR=",p,
                       "\n but probably need to add yourself to 'do-roxy' script")
               p
@@ -14,6 +15,7 @@ pDIR <- switch((U <- Sys.getenv("USER")),
 pkgPATH <- file.path(pDIR, pkg)
 #
 library(roxygen2)
+library(methods)
 if(FALSE) {
   roxygenize(pkgPATH, roclets = c("collate", "namespace"))## *NOT* using "rd"
 } else {

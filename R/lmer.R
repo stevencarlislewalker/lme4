@@ -412,6 +412,25 @@ glmer <- function(formula, data=NULL, family = gaussian, sparseX = FALSE,
         stop("Response is constant - cannot fit the model")
     rho$verbose     <- as.integer(verbose)
                                         # initialize (from mustart)
+    
+    ########################
+    
+    Ut <- rho$pp$Ut
+    Zt <- rho$pp$Zt
+    X <- Matrix(X, sparse = TRUE)
+    UtU <- crossprod(Ut, Ut)
+    L <- Cholesky(UtU, perm = TRUE, LDL = FALSE, Imult = 1)
+    #RZX <- solve(L, crossprod(Ut, X), system = "P")
+    #print(RZX)
+    #print(dim(X))
+    #print(dim(Zt))
+    #print(dim(Ut))
+    #print(L)
+    #print(UtU)
+    
+    
+    ########################
+    
     .Call(glmerLaplace, rho$pp$ptr(), rho$resp$ptr(), 0L, tolPwrss, verbose)
     rho$lp0         <- rho$pp$linPred(1) # each pwrss opt begins at this eta
     rho$pwrssUpdate <- glmerPwrssUpdate
@@ -1781,7 +1800,7 @@ getME <- function(object,
 			name, class(object))))
 }## {getME}
 
-##' @importMethodsFrom Matrix t %*% crossprod diag tcrossprod
+##' @importMethodsFrom Matrix t %*% crossprod diag tcrossprod solve
 ##' @importClassesFrom Matrix dgCMatrix dpoMatrix corMatrix
 NULL
 

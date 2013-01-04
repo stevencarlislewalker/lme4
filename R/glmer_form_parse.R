@@ -47,6 +47,12 @@ glmer_form_parse <- function(formula, data=NULL, family = gaussian, sparseX = FA
   if ((rankX <- rankMatrix(X)) < p)
     stop(gettextf("rank of X = %d < ncol(X) = %d", rankX, p))
 
-  out <- list(reTrms = reTrms, X = X)
+  #out <- list(reTrms = reTrms, X = X)
+  
+  out <- list(
+    Zt = reTrms$Zt,
+    X = X,
+    Lambdat = reTrms$Lambdat)
+  
   return(out)
 }

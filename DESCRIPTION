@@ -60,4 +60,5 @@ Collate:
     'plot.R'
     'vcconv.R'
     'glmer_form_parse.R'
+    'RZXbyhand.R'
 BuildVignettes: no
