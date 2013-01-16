@@ -63,15 +63,15 @@ RZXbyhand <- function(pp, resp, includeH = TRUE){
   
   LambdatZt <- pp$Lambdat %*% pp$Zt
   
-  if(includeH) H <- diag(resp$n * resp$mu * (1 - resp$mu), length(resp$mu), length(resp$mu))
-  else H <- diag(1, ncol(LambdatZt), ncol(LambdatZt))
+  if(includeH) Winv <- diag(resp$n * resp$mu * (1 - resp$mu), length(resp$mu), length(resp$mu))
+  else Winv <- diag(1, ncol(LambdatZt), ncol(LambdatZt))
   
-  H <- as(H, 'dgCMatrix')
-  LambdatZtH <- LambdatZt %*% H
+  Winv <- as(Winv, 'dgCMatrix')
+  LambdatZtWinv <- LambdatZt %*% Winv
   
-  UtU <- tcrossprod(LambdatZtH, LambdatZt)
-  UtV <- LambdatZtH %*% pp$X
-  VtV <- crossprod(pp$X, crossprod(H, pp$X))
+  UtU <- tcrossprod(LambdatZtWinv, LambdatZt)
+  UtV <- LambdatZtWinv %*% pp$X
+  VtV <- crossprod(pp$X, crossprod(Winv, pp$X))
   
   Lt <- Cholesky(UtU, LDL = FALSE, Imult = 1)
   RZX <- solve(Lt, UtV, system = 'L')
