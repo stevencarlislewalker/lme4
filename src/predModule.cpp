@@ -228,15 +228,13 @@ namespace lme4 {
     }
 
     void merPredD::updateDecomp() { // update L, RZX and RX
-  // Rcpp::Rcout << "first thing in updateDecomp:\n" << d_LamtUt << std::endl;
-  // Rcpp::Rcout << "second thing in updateDecomp:\n" << d_V << std::endl;
-	updateL();
-	d_RZX         = d_LamtUt * d_V;
-  Rcpp::Rcout << "RZX:\n" << d_RZX << std::endl;
+  updateL();
+	d_RZX         = d_LamtUt * d_V; // perhaps strangely, the d_RZX object contains UtV at this point
+  //Rcpp::Rcout << "UtV:\n" << d_RZX << std::endl;
 	if (d_p > 0) {
 	    d_L.solveInPlace(d_RZX, CHOLMOD_P);
-	    d_L.solveInPlace(d_RZX, CHOLMOD_L);
-
+	    d_L.solveInPlace(d_RZX, CHOLMOD_L); // now d_RZX actually contains RZX
+      Rcpp::Rcout << "RZX:\n" << d_RZX << std::endl;
 	    MatrixXd      VtVdown(d_VtV);
 	    d_RX.compute(VtVdown.selfadjointView<Eigen::Upper>().rankUpdate(d_RZX.adjoint(), -1));
 	    if (d_RX.info() != Eigen::Success)
@@ -250,6 +248,8 @@ namespace lme4 {
 	    throw invalid_argument("updateRes: dimension mismatch");
 	d_Vtr           = d_V.adjoint() * wtres;
 	d_Utr           = d_LamtUt * wtres;
+  // Rcpp::Rcout << "Vtr:\n" << d_Vtr << std::endl;
+  // Rcpp::Rcout << "Utr:\n" << d_Utr << std::endl;
     }
 
     void merPredD::installPars(const Scalar& f) {

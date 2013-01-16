@@ -1,0 +1,37 @@
+install.packages("reo", repos="http://R-Forge.R-project.org")
+install.packages('ellipse')
+library(reo)
+?ltm.ecol
+fish.ltm <- ltm.ecol(fish,lambda=1)
+fish.ltm <- ltm.ecol(fish)
+fish.ltm <- ltm.ecol(fish, cvic = TRUE)
+fish.ltm
+biplot(fish.ltm)
+library(lme4.0)
+system('pwd')
+library(lme4)
+library(lme4)
+setwd('/users/stevenwalker/development/lme4/testsx/')
+setwd('/users/stevenwalker/development/lme4/testsx/')
+load('randcrabdata.RData')
+parts <- glmer_form_parse(fr2, weights = initial.snail.density, family = 'binomial', data = randdata, verbose = 100, nAGQ = 1)
+Zt <- parts$reTrms$Zt#
+q <- nrow(Zt)#
+Lambdat <- parts$reTrms$Lambdat#
+X <- parts$X
+Q <- Lambdat %*% Zt %*% X
+crossprod(crossprod(Lambdat, Zt), X)
+Q
+crossprod(crossprod(Lambdat, Zt), X)
+?crossprod
+?Matrix
+crossprod(Lambdat, Zt)
+X
+Ut <- crossprod(Lambdat, Zt)
+Ut <- Lambdat %*% Zt # this is a different definition of Ut than in code, but same as book
+crossprod(Lambdat, Zt)
+Ut
+crossprod
+showMethods('crossprod')
+tcrossprod(Lambdat, Zt)
+Lambdat %*% Zt # this is a different definition of Ut than in code, but same as book

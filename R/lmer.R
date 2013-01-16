@@ -404,9 +404,47 @@ glmer <- function(formula, data=NULL, family = gaussian, sparseX = FALSE,
     ## deviance function.
     rho             <- as.environment(list(verbose=verbose, tolPwrss=tolPwrss))
     parent.env(rho) <- parent.frame()
+    
+    ##########################
+    # Here I try to mimic the computation of RZX
+    #y <- fr[[1]]
+    #mu <- mu*0.5 + 0.25
+    #Zt <- reTrms$Zt
+    #Lambdat <- reTrms$Lambdat
+    #u <- rep(0, nrow(Zt))
+    #RZXhand <- RZXbyhand(list(Zt = Zt, Lambdat = Lambdat, X = X))
+    #RZXhand <- RZXbyhand(rho$pp$copy(), rho$resp$copy())
+    #print('mimic 0:')
+    #print(RZXhand)
+    ##########################
+    
+    pp_byhand <- c(reTrms[c("Zt","theta","Lambdat","Lind")],
+           n=nrow(X), list(X=X))
+    #resp_byhand <- list(n = nrow(X), mu = rep(0.5, nrow(X)))
+    resp_byhand <- mkRespMod(fr, family=family)
+    
+    #print(resp_byhand$mu)
+    #print(resp_byhand$y)
+    
+    #print(pp_byhand)
+    #print(resp_byhand)
+    
+    print('just before pp gets made')
+    RZXhand <- RZXbyhand(pp = pp_byhand, resp = resp_byhand, includeH = FALSE)
+    
+    ########################################################################
+    # first time RZX gets computed (just once):
     rho$pp          <- do.call(merPredD$new,
                                c(reTrms[c("Zt","theta","Lambdat","Lind")],
                                  n=nrow(X), list(X=X)))
+    ########################################################################
+    
+    #print('theta 1: ')
+    #print(rho$pp$theta)
+    
+    print('just before resp gets made')
+    RZXhand <- RZXbyhand(pp = rho$pp$copy(), resp = resp_byhand, includeH = FALSE)
+    
     rho$resp        <- mkRespMod(fr, family=family)
     if (length(unique(rho$resp$y)) < 2L)
         stop("Response is constant - cannot fit the model")
@@ -415,11 +453,9 @@ glmer <- function(formula, data=NULL, family = gaussian, sparseX = FALSE,
     
     ########################
     
-    Ut <- rho$pp$Ut
-    Zt <- rho$pp$Zt
-    X <- Matrix(X, sparse = TRUE)
-    UtU <- crossprod(Ut, Ut)
-    L <- Cholesky(UtU, perm = TRUE, LDL = FALSE, Imult = 1)
+    #Ut <- rho$pp$Ut
+    #UtU <- crossprod(Ut, Ut)
+    #L <- Cholesky(UtU, perm = TRUE, LDL = FALSE, Imult = 1)
     #RZX <- solve(L, crossprod(Ut, X), system = "P")
     #print(RZX)
     #print(dim(X))
@@ -431,7 +467,26 @@ glmer <- function(formula, data=NULL, family = gaussian, sparseX = FALSE,
     
     ########################
     
+    
+    ##########################
+    # Here I try to mimic the computation of RZX
+    #mu <- fr[[1]]*0.5 + 0.25
+    #Zt <- rho$pp$Zt
+    #Lambdat <- rho$pp$Lambdat
+    #RZXhand <- RZXbyhand(list(Zt = Zt, Lambdat = Lambdat, X = X))
+    RZXhand <- RZXbyhand(rho$pp$copy(), rho$resp$copy())
+    #print('mimic 1:')
+    #print(RZXhand)
+    ##########################
+    
+    ##########################
+    # RZX now gets computed a few more times:
     .Call(glmerLaplace, rho$pp$ptr(), rho$resp$ptr(), 0L, tolPwrss, verbose)
+    ###########################
+    
+    RZXhand <- RZXbyhand(rho$pp$copy(), rho$resp$copy())
+    
+    
     rho$lp0         <- rho$pp$linPred(1) # each pwrss opt begins at this eta
     rho$pwrssUpdate <- glmerPwrssUpdate
     rho$compDev     <- compDev
@@ -441,9 +496,58 @@ glmer <- function(formula, data=NULL, family = gaussian, sparseX = FALSE,
     if (length(optimizer)==1) {
         optimizer <- replicate(2,optimizer)
     }
+    
+    #print('theta 2: ')
+    #print(rho$pp$theta)
+    
+    ##########################
+    # Again, I try to mimic the computation of RZX
+    #u <- rho$pp$u(1)
+    #Zt <- rho$pp$Zt
+    #Lambdat <- rho$pp$Lambdat
+    #N <- rho$resp$weights
+    #y <- rho$resp$y * N
+    #mu <- rho$resp$mu
+    #RZXhand <- RZXbyhand(r5_to_list(rho$pp), r5_to_list(rho$resp))
+    RZXhand <- RZXbyhand(rho$pp$copy(), rho$resp$copy())
+    #print('mimic 2:')
+    #print(RZXhand)
+    ##########################
+    
+    ##########################
+    # RZX now gets computed MANY more times:
     opt <- optwrap(optimizer[[1]],devfun,rho$pp$theta, rho$lower,
                    control=control,
                    adj=FALSE, verbose=verbose)
+    ##########################
+    
+    ##########################
+    # Again, I try to mimic the computation of RZX
+    #u <- rho$pp$u(1)
+    #Zt <- rho$pp$Zt
+    #Lambdat <- rho$pp$Lambdat
+    #y <- rho$resp$y
+    #mu <- rho$resp$mu
+    #RZXhand <- RZXbyhand(r5_to_list(rho$pp), r5_to_list(rho$resp))
+    RZXhand <- RZXbyhand(rho$pp$copy(), rho$resp$copy())
+    #print('mimic 3:')
+    #print(RZXhand)
+    ##########################
+    
+    ##########################
+    # at this point Lambdat is totally different from intial conditions
+    # because we've gone through certain optimization steps over theta
+    # so let's capture the new Lambdat and see if I can get the new RZX by hand:
+    #if(verbose == 808){
+    #  obj <- list(X = X, Lambdat = rho$pp$Lambdat, Zt = rho$pp$Zt)
+    #  RZXhand <- RZXbyhand(obj)
+    #  RZXnow <- rho$pp$RZX
+    #  return(list(RZXhand = RZXhand, RZXnow = RZXnow))
+    #}
+    
+    #print('theta 3: ')
+    #print(rho$pp$theta)
+    
     rho$control <- attr(opt,"control")
 
     rho$nAGQ <- nAGQ
@@ -467,6 +571,20 @@ glmer <- function(formula, data=NULL, family = gaussian, sparseX = FALSE,
                        adj=TRUE, verbose=verbose)
         rho$resp$setOffset(rho$baseOffset)
     }
+    
+    ##########################
+    # Again, I try to mimic the computation of RZX
+    #u <- rho$pp$u(1)
+    #Zt <- rho$pp$Zt
+    #Lambdat <- rho$pp$Lambdat
+    #y <- rho$resp$y
+    #mu <- rho$resp$mu
+    #RZXhand <- RZXbyhand(r5_to_list(rho$pp), r5_to_list(rho$resp))
+    RZXhand <- RZXbyhand(rho$pp$copy(), rho$resp$copy())
+    #print('mimic 4:')
+    #print(RZXhand)
+    ##########################
+    
     mkMerMod(environment(devfun), opt, reTrms, fr, mc)
 }## {glmer}
 
